@@ -148,7 +148,7 @@
             document.getElementById('spinner').style.display = 'block';
             document.querySelectorAll('.btn-country').forEach(b => b.classList.remove('active'));
             try {
-                const r = await fetch(`/api/select/auto/${val}`, {method:'POST'});
+                const r = await fetch(`/api/select/${val}`, {method:'POST'});
                 const d = await r.json();
                 if (d.status === 'ok') {
                     el.classList.add('active');

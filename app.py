@@ -9,20 +9,11 @@ GLUETUN = os.environ.get("GLUETUN_URL", "http://192.168.1.173:8001")
 AUTH    = ("hakan", "ronny")
 PIN     = os.environ.get("PEKKA_PIN", "1234")
 
-RULES = {
-    ("sweden",  "svt"):     None,
-    ("sweden",  "yle"):     "finland",
-    ("sweden",  "bbc"):     "uk",
-    ("finland", "svt"):     "sweden",
-    ("finland", "yle"):     None,
-    ("finland", "bbc"):     "uk",
-}
-
 # ---------- Auth ----------
 
 @app.before_request
 def check_pin():
-    open_paths = ["/login", "/static"]
+    open_paths = ["/login", "/static", "/countries.json"]
     if any(request.path.startswith(p) for p in open_paths):
         return
     if not session.get("ok"):
@@ -57,36 +48,40 @@ def debug():
 def help():
     return render_template("help.html")
 
+@app.route('/countries.json')
+def countries():
+    import json
+    with open('countries.json') as f:
+        return app.response_class(f.read(), mimetype='application/json')
+
 # ---------- API ----------
 
 @app.route("/api/status")
 def api_status():
     return jsonify(vpn_status())
 
-@app.route("/api/select/<location>/<service>", methods=["GET", "POST"])
-def api_select(location, service):
-    key = (location.lower(), service.lower())
-    if key not in RULES:
-        return jsonify({"status": "error", "message": "Okänd kombination"}), 400
-
-    exit_country = RULES[key]
+@app.route("/api/select/<country>", methods=["GET", "POST"])
+def api_select(country):
+    country = country.lower()
     try:
-        if exit_country is None:
+        if country == "sweden":
+            # Sverige = VPN av, använd Ronnys exit
             r = requests.put(f"{GLUETUN}/v1/vpn/status",
                              json={"status": "stopped"}, auth=AUTH, timeout=5)
         else:
+            # Sätt exit-land och starta VPN
             r = requests.put(f"{GLUETUN}/v1/vpn/settings",
                              json={"provider": {"name": "mullvad",
                                                 "server_selection": {
                                                     "vpn": "wireguard",
-                                                    "countries": [exit_country]}}},
+                                                    "countries": [country.upper() if country in ["uk","usa"] else country]}}},
                              auth=AUTH, timeout=5)
             if r.status_code == 200:
                 r = requests.put(f"{GLUETUN}/v1/vpn/status",
                                  json={"status": "running"}, auth=AUTH, timeout=5)
 
         if r.status_code == 200:
-            return jsonify({"status": "ok", "vpn": exit_country or "av"})
+            return jsonify({"status": "ok", "vpn": country})
         else:
             return jsonify({"status": "error", "message": r.text}), 500
 
