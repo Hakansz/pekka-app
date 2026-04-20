@@ -1,8 +1,12 @@
-from flask import Flask, jsonify, request, render_template, session, redirect, url_for
+from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address, jsonify, request, render_template, session, redirect, url_for
 import requests
 import os
 
 app = Flask(__name__)
+limiter = Limiter(get_remote_address, app=app, default_limits=[])
+
 app.secret_key = os.environ.get("SECRET_KEY", "byt-mig-i-prod")
 
 GLUETUN = os.environ.get("GLUETUN_URL", "http://192.168.1.173:8001")
@@ -19,6 +23,7 @@ def check_pin():
     if not session.get("ok"):
         return redirect(url_for("login"))
 
+@limiter.limit("10 per minute")
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None

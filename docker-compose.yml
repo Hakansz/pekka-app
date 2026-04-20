@@ -6,6 +6,6 @@ services:
       - "5008:5005"
     environment:
       - GLUETUN_URL=http://192.168.1.173:8001
-      - PEKKA_PIN=9999
+      - PEKKA_PIN=74781922
       - SECRET_KEY=byt-mig-till-nåt-hemligt
     restart: unless-stopped

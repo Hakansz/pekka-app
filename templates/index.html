@@ -89,7 +89,7 @@
 <body>
     <header>
         <h1>📺 Pekka-TV</h1>
-        <a href="/logout"><button class="logout">Logga ut</button></a>
+        <a href="/help" style="color:#aaa;margin-right:12px;">❓</a><a href="/logout"><button class="logout">Logga ut</button></a>
     </header>
 
     <div class="status-bar">
@@ -108,7 +108,7 @@
         <!-- Byggs av JS från countries.json -->
     </div>
 
-    <div class="spinner" id="spinner">⏳ Byter VPN...</div>
+    <div style="text-align:center;margin-top:30px;"><img src="/static/qr.png" style="width:160px;border-radius:12px;"><br><small style="color:#aaa;">Dela länk</small></div><div class="spinner" id="spinner">⏳ Byter VPN...</div>
     <div class="toast" id="toast"></div>
 
     <script>
