@@ -11,55 +11,54 @@
             background: #1a1a2e;
             color: #fff;
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
         }
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 16px;
         }
         h1 { font-size: 1.8rem; }
         .status-bar {
             background: #16213e;
             border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 24px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
             display: flex;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
             font-size: 1rem;
         }
         .status-bar span { color: #aaa; }
-        .status-bar b   { color: #fff; }
+        .status-bar b { color: #fff; }
         .vpn-on  { color: #4CAF50 !important; }
         .vpn-off { color: #f44336 !important; }
-        .countries {
+        .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 12px;
         }
-        .btn-country {
+        .btn {
             background: #16213e;
             border: 2px solid #0f3460;
             border-radius: 14px;
             padding: 18px 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s, border-color 0.2s;
+            width: 100%;
         }
-        .btn-country:hover  { background: #0f3460; border-color: #4CAF50; }
-        .btn-country.active { background: #1b4332; border-color: #4CAF50; }
-        .btn-country .flag  { font-size: 2rem; }
-        .btn-country .name  { font-size: 0.9rem; font-weight: bold; margin-top: 6px; }
-        .btn-country .app   { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+        .btn:hover { background: #0f3460; border-color: #4CAF50; }
+        .btn .flag { font-size: 2.6rem; }
+        .btn .name { font-size: 0.95rem; font-weight: bold; margin-top: 8px; }
+        .btn .app  { font-size: 0.75rem; color: #aaa; margin-top: 2px; }
+        .btn-util .icon { font-size: 2rem; }
+        .btn-util .name { font-size: 0.95rem; font-weight: bold; margin-top: 8px; }
         .divider {
             grid-column: 1 / -1;
             border: none;
             border-top: 1px solid #0f3460;
             margin: 4px 0;
         }
-        .spinner { display: none; text-align: center; padding: 20px; font-size: 1.2rem; }
         .toast {
             position: fixed;
             bottom: 30px;
@@ -74,57 +73,66 @@
             z-index: 999;
         }
         .toast.error { background: #f44336; }
-        .logout {
-            background: none;
-            border: 1px solid #555;
-            color: #aaa;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
+        .spinner {
+            display: none;
+            text-align: center;
+            padding: 16px;
+            font-size: 1.1rem;
         }
-        .logout:hover { border-color: #f44336; color: #f44336; }
+        .qr-wrap {
+            text-align: center;
+            margin-top: 28px;
+            padding-bottom: 20px;
+        }
+        .qr-wrap img {
+            width: 140px;
+            border-radius: 12px;
+            background: #fff;
+            padding: 6px;
+        }
+        .qr-wrap small { display: block; color: #aaa; margin-top: 6px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>📺 Pekka-TV</h1>
-        <a href="/help" style="color:#aaa;margin-right:12px;">❓</a><a href="/logout"><button class="logout">Logga ut</button></a>
-    </header>
+    <header><h1>📺 Pekka-TV</h1></header>
 
     <div class="status-bar">
-        <div>
-            VPN:
-            <b id="vpn-status" class="{{ 'vpn-on' if status.vpn_status == 'running' else 'vpn-off' }}">
-                {{ '🟢 På' if status.vpn_status == 'running' else '🔴 Av' }}
-            </b>
-        </div>
+        <div>VPN: <b id="vpn-status" class="{{ 'vpn-on' if status.vpn_status == 'running' else 'vpn-off' }}">{{ '🟢 På' if status.vpn_status == 'running' else '🔴 Av' }}</b></div>
         <div><span>IP:</span> <b id="vpn-ip">{{ status.public_ip }}</b></div>
         <div><span>Land:</span> <b id="vpn-country">{{ status.country }}</b></div>
         <div><span>Stad:</span> <b id="vpn-city">{{ status.city }}</b></div>
     </div>
 
-    <div class="countries" id="countries">
-        <!-- Byggs av JS från countries.json -->
+    <div class="grid" id="grid">
+        <a href="/help" class="btn btn-util" style="text-decoration:none;color:#fff;">
+            <div class="icon">❓</div>
+            <div class="name">Info</div>
+        </a>
+        <a href="/debug" class="btn btn-util" style="text-decoration:none;color:#fff;">
+            <div class="icon">🔧</div>
+            <div class="name">Rapport</div>
+        </a>
     </div>
 
-    <div style="text-align:center;margin-top:30px;"><img src="/static/qr.png" style="width:160px;border-radius:12px;"><br><small style="color:#aaa;">Dela länk</small></div><div class="spinner" id="spinner">⏳ Byter VPN...</div>
+    <div class="spinner" id="spinner">⏳ Byter VPN...</div>
     <div class="toast" id="toast"></div>
+
+    <div class="qr-wrap">
+        <img src="/static/qr.png" alt="QR-kod">
+        <small>Dela länk</small>
+    </div>
 
     <script>
         const FLAGS = {
-            se:"🇸🇪", fi:"🇫🇮", dk:"🇩🇰", no:"🇳🇴", is:"🇮🇸",
-            gb:"🇬🇧", ie:"🇮🇪", de:"🇩🇪", nl:"🇳🇱", fr:"🇫🇷",
-            be:"🇧🇪", ch:"🇨🇭", at:"🇦🇹", ee:"🇪🇪", pl:"🇵🇱",
-            pt:"🇵🇹", es:"🇪🇸", it:"🇮🇹", gr:"🇬🇷",
-            us:"🇺🇸", ca:"🇨🇦", au:"🇦🇺", nz:"🇳🇿"
+            se:"🇸🇪", fi:"🇫🇮", dk:"🇩🇰", no:"🇳🇴",
+            gb:"🇬🇧", de:"🇩🇪", fr:"🇫🇷", nl:"🇳🇱",
+            it:"🇮🇹", es:"🇪🇸", ca:"🇨🇦", au:"🇦🇺"
         };
 
         async function loadCountries() {
             const res  = await fetch('/countries.json');
             const list = await res.json();
-            const grid = document.getElementById('countries');
-            grid.innerHTML = '';
+            const grid = document.getElementById('grid');
             list.forEach(c => {
                 if (c.val === null) {
                     const hr = document.createElement('hr');
@@ -133,8 +141,7 @@
                     return;
                 }
                 const div = document.createElement('div');
-                div.className = 'btn-country';
-                div.dataset.val = c.val;
+                div.className = 'btn';
                 div.innerHTML = `
                     <div class="flag">${FLAGS[c.id] || '🌐'}</div>
                     <div class="name">${c.name}</div>
@@ -146,16 +153,14 @@
 
         async function selectCountry(val, el) {
             document.getElementById('spinner').style.display = 'block';
-            document.querySelectorAll('.btn-country').forEach(b => b.classList.remove('active'));
             try {
                 const r = await fetch(`/api/select/${val}`, {method:'POST'});
                 const d = await r.json();
                 if (d.status === 'ok') {
-                    el.classList.add('active');
-                    showToast(`✅ ${el.querySelector('.name').textContent}`);
+                    showToast('✅ ' + el.querySelector('.name').textContent);
                     refreshStatus();
                 } else {
-                    showToast('❌ Fel: ' + (d.message || 'okänt'), true);
+                    showToast('❌ ' + (d.message || 'Okänt fel'), true);
                 }
             } catch(e) {
                 showToast('❌ Kunde inte nå servern', true);
@@ -175,14 +180,25 @@
 
         function showToast(msg, error=false) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className   = 'toast' + (error ? ' error' : '');
+            t.textContent   = msg;
+            t.className     = 'toast' + (error ? ' error' : '');
             t.style.display = 'block';
             setTimeout(() => t.style.display = 'none', 3000);
         }
 
+        // Logga ut kl 04:00
+        function scheduleLogout() {
+            const now  = new Date();
+            const next = new Date();
+            next.setHours(4, 0, 0, 0);
+            if (next <= now) next.setDate(next.getDate() + 1);
+            setTimeout(() => { window.location.href = '/logout'; }, next - now);
+        }
+
         loadCountries();
+        refreshStatus();
         setInterval(refreshStatus, 30000);
+        scheduleLogout();
     </script>
 </body>
 </html>
