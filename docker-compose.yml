@@ -1,0 +1,11 @@
+services:
+  pekka-app:
+    build: .
+    container_name: pekka-app
+    ports:
+      - "5005:5005"
+    environment:
+      - GLUETUN_URL=http://192.168.1.173:8001
+      - PEKKA_PIN=1234
+      - SECRET_KEY=byt-mig-till-nåt-hemligt
+    restart: unless-stopped

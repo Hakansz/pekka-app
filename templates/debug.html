@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug – Pekka-TV</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: monospace; background: #1a1a2e; color: #fff; padding: 20px; }
+        h1 { margin-bottom: 20px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .card h2 { font-size: 1rem; color: #aaa; margin-bottom: 10px; }
+        .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #0f3460; }
+        .row:last-child { border-bottom: none; }
+        .ok  { color: #4CAF50; }
+        .err { color: #f44336; }
+        a { color: #4CAF50; }
+        .back { display: inline-block; margin-top: 20px; padding: 10px 20px;
+                background: #0f3460; border-radius: 8px; color: #fff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug</h1>
+
+    <div class="card">
+        <h2>VPN Status</h2>
+        <div class="row"><span>Status</span>
+            <span class="{{ 'ok' if status.vpn_status == 'running' else 'err' }}">
+                {{ status.vpn_status }}</span></div>
+        <div class="row"><span>Public IP</span>  <span>{{ status.public_ip }}</span></div>
+        <div class="row"><span>Land</span>        <span>{{ status.country }}</span></div>
+        <div class="row"><span>Stad</span>        <span>{{ status.city }}</span></div>
+    </div>
+
+    <div class="card">
+        <h2>Konfiguration</h2>
+        <div class="row"><span>Gluetun URL</span> <span>{{ gluetun }}</span></div>
+        <div class="row"><span>Flask port</span>  <span>5005</span></div>
+    </div>
+
+    <a href="/" class="back">← Tillbaka</a>
+</body>
+</html>
