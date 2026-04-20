@@ -5,7 +5,9 @@ services:
     ports:
       - "5008:5005"
     environment:
+      - PEKKA_PIN=${PEKKA_PIN}
+      - SECRET_KEY=${SECRET_KEY}
       - GLUETUN_URL=http://192.168.1.173:8001
-      - PEKKA_PIN=74781922
-      - SECRET_KEY=byt-mig-till-nåt-hemligt
+
+
     restart: unless-stopped
