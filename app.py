@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address, jsonify, request, render_template, session, redirect, url_for
+from flask_limiter.util import get_remote_address
 import requests
 import os
 
